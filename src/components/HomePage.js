@@ -2,7 +2,7 @@ import React from "react";
 import FeaturedItems from "./FeaturedItems";
 import AllListings from "./AllListings";
 import ProductDetail from "./ProductDetail";
-import CallToAction from "./CallToAction";
+
 
 const HomePage = () => (
   <main style={{background: "#0A0A0A", minHeight: "100vh", paddingTop: 81}}>
@@ -27,7 +27,7 @@ const HomePage = () => (
     <FeaturedItems />
     <AllListings />
     <ProductDetail />
-    <CallToAction />
+
   </main>
 );
 
