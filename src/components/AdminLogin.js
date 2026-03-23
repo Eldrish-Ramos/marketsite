@@ -1,29 +1,33 @@
 
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = ({ onLogin }) => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [token, setToken] = useState("");
+  const [pin, setPin] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     try {
+      console.log("Submitting PIN:", pin);
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, token }),
+        body: JSON.stringify({ pin }),
       });
       if (res.ok) {
         onLogin();
+        navigate("/admin");
       } else {
-        setError("Invalid credentials or 2FA code");
+        const data = await res.json();
+        setError(data.error || "Invalid pin");
       }
-    } catch {
+    } catch (err) {
       setError("Server error");
+      console.error("Login error:", err);
     }
   };
 
@@ -32,35 +36,14 @@ const AdminLogin = ({ onLogin }) => {
       <h2 className="mb-4">Admin Login</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">Username</label>
+          <label className="form-label">Admin PIN</label>
           <input
             type="text"
             className="form-control"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
             required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Password</label>
-          <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Authenticator Code</label>
-          <input
-            type="text"
-            className="form-control"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            required
-            maxLength={6}
-            pattern="[0-9]{6}"
+            autoFocus
           />
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
