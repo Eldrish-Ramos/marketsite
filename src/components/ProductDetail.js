@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -78,6 +78,13 @@ const ProductDetail = () => {
             <div className="fw-bold" style={{ fontSize: 48, color: "#F5F5F5" }}>
               ${Number(item.price || 0).toFixed(2)}
             </div>
+            <Link
+              to={`/items/${item.id}/purchase`}
+              className="btn btn-light fw-medium px-4 py-3 rounded-2 mt-3"
+              style={{ color: "#0A0A0A", fontSize: 16 }}
+            >
+              Purchase Options
+            </Link>
           </div>
           <div style={{ height: 1, background: "#2A2A2A", width: "100%" }}></div>
           <div>
@@ -92,8 +99,18 @@ const ProductDetail = () => {
               {item.description}
             </p>
           </div>
+          <div>
+            <h3 className="fw-semibold" style={{ fontSize: 20, color: "#F5F5F5" }}>Pickup Availability</h3>
+            <p className="fw-normal mb-1" style={{ fontSize: 18, color: "rgba(245,245,245,0.7)", lineHeight: "30px" }}>
+              Oxnard Flea Market: {item.isPickupAtOxnardFleaMarket ? "Available" : "Not available"}
+            </p>
+            <p className="fw-normal" style={{ fontSize: 18, color: "rgba(245,245,245,0.7)", lineHeight: "30px" }}>
+              Collection: {item.isPickupAtCollection ? "Available" : "Not available"}
+            </p>
+          </div>
         </div>
       </div>
+
     </section>
   );
 };

@@ -42,6 +42,10 @@ function isValidPrice(price) {
   return Number.isFinite(parsedPrice) && parsedPrice >= 0;
 }
 
+function parseBooleanField(value) {
+  return value === true || value === 'true';
+}
+
 function getCloudinaryPublicIdFromUrl(imageUrl) {
   if (!imageUrl || typeof imageUrl !== 'string' || !imageUrl.includes('res.cloudinary.com')) {
     return null;
@@ -116,6 +120,8 @@ function normalizeItem(doc) {
   return {
     id: doc.id,
     ...data,
+    isPickupAtOxnardFleaMarket: Boolean(data.isPickupAtOxnardFleaMarket),
+    isPickupAtCollection: Boolean(data.isPickupAtCollection),
     imageUrls,
     cloudinaryPublicIds,
     thumbnailIndex,
@@ -129,6 +135,8 @@ router.post('/upload', upload.array('images', 10), async (req, res) => {
   try {
     const { title, description, price, condition, category } = req.body;
     const files = req.files || [];
+    const isPickupAtOxnardFleaMarket = parseBooleanField(req.body.isPickupAtOxnardFleaMarket);
+    const isPickupAtCollection = parseBooleanField(req.body.isPickupAtCollection);
 
     if (files.length === 0 || !title || !description || !price || !condition || !category) {
       return res.status(400).json({ error: 'Title, description, price, condition, category, and at least one image are required.' });
@@ -166,6 +174,8 @@ router.post('/upload', upload.array('images', 10), async (req, res) => {
       price: parsedPrice,
       condition,
       category,
+      isPickupAtOxnardFleaMarket,
+      isPickupAtCollection,
       itemId,
       imageUrl,
       imageUrls,
@@ -182,6 +192,8 @@ router.post('/upload', upload.array('images', 10), async (req, res) => {
       price: parsedPrice,
       condition,
       category,
+      isPickupAtOxnardFleaMarket,
+      isPickupAtCollection,
       imageUrl,
       imageUrls,
       cloudinaryPublicId,
@@ -204,6 +216,8 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
     const { title, description, price, condition } = req.body;
     const replaceImages = req.body.replaceImages === 'true' || req.body.replaceImages === true;
     const files = req.files || [];
+    const isPickupAtOxnardFleaMarket = parseBooleanField(req.body.isPickupAtOxnardFleaMarket);
+    const isPickupAtCollection = parseBooleanField(req.body.isPickupAtCollection);
 
     if (!title || !description || price === undefined || !condition) {
       return res.status(400).json({ error: 'Title, description, price, and condition are required.' });
@@ -231,6 +245,8 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
       description,
       price: parsedPrice,
       condition,
+      isPickupAtOxnardFleaMarket,
+      isPickupAtCollection,
       updatedAt: new Date(),
     };
 

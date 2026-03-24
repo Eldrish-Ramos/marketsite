@@ -41,13 +41,22 @@ const AllListings = () => {
                 key={item.id || i}
                 to={`/items/${item.id}`}
                 className="bg-dark rounded-3 overflow-hidden d-flex flex-column text-decoration-none"
-                style={{width:382, height:436}}
+                style={{width:382, height:500}}
               >
                 <div className="overflow-hidden" style={{height:320}}>
                   <img src={primaryImage} alt={item.title} style={{width:382, height:382, objectFit:"cover"}} />
                 </div>
-                <div className="p-3 d-flex flex-column gap-2" style={{height:116}}>
+                <div className="p-3 d-flex flex-column gap-1" style={{height:180}}>
                   <h3 className="fw-semibold" style={{fontSize:18, color: "#F5F5F5"}}>{item.title}</h3>
+                  <div className="fw-bold" style={{fontSize:22, color: "#F5F5F5"}}>
+                    ${Number(item.price || 0).toFixed(2)}
+                  </div>
+                  <div style={{fontSize:14, color: "rgba(245,245,245,0.7)"}}>
+                    Oxnard Flea Market: {item.isPickupAtOxnardFleaMarket ? "Available" : "Not available"}
+                  </div>
+                  <div style={{fontSize:14, color: "rgba(245,245,245,0.7)"}}>
+                    Collection: {item.isPickupAtCollection ? "Available" : "Not available"}
+                  </div>
                 </div>
               </Link>
               );
