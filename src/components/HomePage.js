@@ -1,7 +1,6 @@
 import React from "react";
 import FeaturedItems from "./FeaturedItems";
 import AllListings from "./AllListings";
-import ProductDetail from "./ProductDetail";
 
 
 const HomePage = () => (
@@ -26,7 +25,6 @@ const HomePage = () => (
     </section>
     <FeaturedItems />
     <AllListings />
-    <ProductDetail />
 
   </main>
 );

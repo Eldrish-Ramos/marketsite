@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const AllListings = () => {
   const [items, setItems] = useState([]);
@@ -33,16 +34,24 @@ const AllListings = () => {
           <div className="alert alert-danger">{error}</div>
         ) : (
           <div className="d-flex flex-wrap gap-3">
-            {items.map((item, i) => (
-              <div key={item.id || i} className="bg-dark rounded-3 overflow-hidden d-flex flex-column" style={{width:382, height:436}}>
+            {items.map((item, i) => {
+              const primaryImage = item.imageUrl || (item.imageUrls && item.imageUrls[0]);
+              return (
+              <Link
+                key={item.id || i}
+                to={`/items/${item.id}`}
+                className="bg-dark rounded-3 overflow-hidden d-flex flex-column text-decoration-none"
+                style={{width:382, height:436}}
+              >
                 <div className="overflow-hidden" style={{height:320}}>
-                  <img src={item.imageUrl} alt={item.title} style={{width:382, height:382, objectFit:"cover"}} />
+                  <img src={primaryImage} alt={item.title} style={{width:382, height:382, objectFit:"cover"}} />
                 </div>
                 <div className="p-3 d-flex flex-column gap-2" style={{height:116}}>
                   <h3 className="fw-semibold" style={{fontSize:18, color: "#F5F5F5"}}>{item.title}</h3>
                 </div>
-              </div>
-            ))}
+              </Link>
+              );
+            })}
           </div>
         )}
       </div>
