@@ -6,7 +6,6 @@ import Footer from "./components/Footer";
 import HomePage from "./components/HomePage";
 import AdminLogin from "./components/AdminLogin";
 import ProductDetail from "./components/ProductDetail";
-import PurchasePage from "./components/PurchasePage";
 
 const AdminPanel = React.lazy(() => import("./components/AdminPanel")); // Placeholder for future admin panel
 
@@ -20,7 +19,6 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/items/:id" element={<ProductDetail />} />
-          <Route path="/items/:id/purchase" element={<PurchasePage />} />
           <Route
             path="/admin/login"
             element={<AdminLogin onLogin={() => setIsAdmin(true)} />}

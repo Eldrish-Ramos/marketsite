@@ -7,7 +7,7 @@ const conditionOptions = [
   "New",
 ];
 
-const categoryOptions = ["Video Games"];
+const categoryOptions = ["Video Games", "Video Game Consoles"];
 
 const defaultFormState = {
   title: "",
@@ -15,8 +15,6 @@ const defaultFormState = {
   price: "",
   condition: conditionOptions[0],
   category: categoryOptions[0],
-  isPickupAtOxnardFleaMarket: false,
-  isPickupAtCollection: false,
 };
 
 const AdminPanel = () => {
@@ -27,12 +25,6 @@ const AdminPanel = () => {
   const [price, setPrice] = useState(defaultFormState.price);
   const [condition, setCondition] = useState(defaultFormState.condition);
   const [category, setCategory] = useState(defaultFormState.category);
-  const [isPickupAtOxnardFleaMarket, setIsPickupAtOxnardFleaMarket] = useState(
-    defaultFormState.isPickupAtOxnardFleaMarket
-  );
-  const [isPickupAtCollection, setIsPickupAtCollection] = useState(
-    defaultFormState.isPickupAtCollection
-  );
   const [images, setImages] = useState([]);
   const [addThumbnailIndex, setAddThumbnailIndex] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -50,8 +42,6 @@ const AdminPanel = () => {
     setPrice(defaultFormState.price);
     setCondition(defaultFormState.condition);
     setCategory(defaultFormState.category);
-    setIsPickupAtOxnardFleaMarket(defaultFormState.isPickupAtOxnardFleaMarket);
-    setIsPickupAtCollection(defaultFormState.isPickupAtCollection);
     setImages([]);
     setAddThumbnailIndex(0);
   };
@@ -207,11 +197,8 @@ const AdminPanel = () => {
     formData.append("price", price);
     formData.append("condition", condition);
     formData.append("category", category);
-    formData.append(
-      "isPickupAtOxnardFleaMarket",
-      isPickupAtOxnardFleaMarket ? "true" : "false"
-    );
-    formData.append("isPickupAtCollection", isPickupAtCollection ? "true" : "false");
+    formData.append("isPickupAtOxnardFleaMarket", "false");
+    formData.append("isPickupAtCollection", "false");
     formData.append("thumbnailIndex", `${addThumbnailIndex}`);
     images.forEach((file) => {
       formData.append("images", file);
@@ -318,32 +305,6 @@ const AdminPanel = () => {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="mb-3 d-flex flex-column gap-2">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="pickup-oxnard"
-                checked={isPickupAtOxnardFleaMarket}
-                onChange={(e) => setIsPickupAtOxnardFleaMarket(e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="pickup-oxnard">
-                Available for pickup at the Oxnard Flea Market
-              </label>
-            </div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="pickup-collection"
-                checked={isPickupAtCollection}
-                onChange={(e) => setIsPickupAtCollection(e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="pickup-collection">
-                Available for pickup at the Collection
-              </label>
-            </div>
           </div>
           <div className="mb-3">
             <label className="form-label">Item Images</label>
@@ -466,36 +427,6 @@ const AdminPanel = () => {
                           value={item.description || ""}
                           onChange={(e) => handleManagedFieldChange(item.id, "description", e.target.value)}
                         />
-                      </div>
-                      <div className="col-12 d-flex flex-column gap-2">
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`manage-pickup-oxnard-${item.id}`}
-                            checked={Boolean(item.isPickupAtOxnardFleaMarket)}
-                            onChange={(e) =>
-                              handleManagedFieldChange(item.id, "isPickupAtOxnardFleaMarket", e.target.checked)
-                            }
-                          />
-                          <label className="form-check-label" htmlFor={`manage-pickup-oxnard-${item.id}`}>
-                            Available for pickup at the Oxnard Flea Market
-                          </label>
-                        </div>
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id={`manage-pickup-collection-${item.id}`}
-                            checked={Boolean(item.isPickupAtCollection)}
-                            onChange={(e) =>
-                              handleManagedFieldChange(item.id, "isPickupAtCollection", e.target.checked)
-                            }
-                          />
-                          <label className="form-check-label" htmlFor={`manage-pickup-collection-${item.id}`}>
-                            Available for pickup at the Collection
-                          </label>
-                        </div>
                       </div>
                       <div className="col-12">
                         <label className="form-label">Current Photos (Select Thumbnail)</label>

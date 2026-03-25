@@ -15,6 +15,7 @@ connectDB();
 
 app.use('/api/items', require('./routes/items'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/contact', require('./routes/contact'));
 
 app.get('/', (req, res) => {
   res.send('API is running');

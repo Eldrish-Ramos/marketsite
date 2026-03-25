@@ -51,12 +51,6 @@ const AllListings = () => {
                   <div className="fw-bold" style={{fontSize:22, color: "#F5F5F5"}}>
                     ${Number(item.price || 0).toFixed(2)}
                   </div>
-                  <div style={{fontSize:14, color: "rgba(245,245,245,0.7)"}}>
-                    Oxnard Flea Market: {item.isPickupAtOxnardFleaMarket ? "Available" : "Not available"}
-                  </div>
-                  <div style={{fontSize:14, color: "rgba(245,245,245,0.7)"}}>
-                    Collection: {item.isPickupAtCollection ? "Available" : "Not available"}
-                  </div>
                 </div>
               </Link>
               );

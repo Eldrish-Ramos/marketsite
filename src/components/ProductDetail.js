@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -7,6 +7,11 @@ const ProductDetail = () => {
   const [activeImage, setActiveImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: "", phone: "", email: "", message: "" });
+  const [formError, setFormError] = useState("");
+  const [formSuccess, setFormSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -30,6 +35,70 @@ const ProductDetail = () => {
 
     fetchItem();
   }, [id]);
+
+  const openContactModal = () => {
+    setFormError("");
+    setFormSuccess("");
+    setIsContactModalOpen(true);
+  };
+
+  const closeContactModal = () => {
+    setIsContactModalOpen(false);
+  };
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((currentData) => ({
+      ...currentData,
+      [name]: value,
+    }));
+  };
+
+  const handleContactSubmit = async (event) => {
+    event.preventDefault();
+    setFormError("");
+    setFormSuccess("");
+
+    const trimmedName = formData.name.trim();
+    const trimmedPhone = formData.phone.trim();
+    const trimmedEmail = formData.email.trim();
+
+    if (!trimmedName || !trimmedPhone || !trimmedEmail) {
+      setFormError("Please fill out your name, phone number, and email.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: trimmedName,
+          phone: trimmedPhone,
+          email: trimmedEmail,
+          message: formData.message.trim(),
+          itemTitle: item.title,
+          itemId: item._id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setFormError(data.error || "Failed to send your message.");
+        return;
+      }
+
+      setFormSuccess("Your message was sent. The seller can follow up using the information you provided.");
+      setFormData({ name: "", phone: "", email: "", message: "" });
+    } catch {
+      setFormError("Failed to send your message.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -78,13 +147,14 @@ const ProductDetail = () => {
             <div className="fw-bold" style={{ fontSize: 48, color: "#F5F5F5" }}>
               ${Number(item.price || 0).toFixed(2)}
             </div>
-            <Link
-              to={`/items/${item.id}/purchase`}
+            <button
+              type="button"
               className="btn btn-light fw-medium px-4 py-3 rounded-2 mt-3"
               style={{ color: "#0A0A0A", fontSize: 16 }}
+              onClick={openContactModal}
             >
-              Purchase Options
-            </Link>
+              Contact Seller
+            </button>
           </div>
           <div style={{ height: 1, background: "#2A2A2A", width: "100%" }}></div>
           <div>
@@ -99,17 +169,123 @@ const ProductDetail = () => {
               {item.description}
             </p>
           </div>
-          <div>
-            <h3 className="fw-semibold" style={{ fontSize: 20, color: "#F5F5F5" }}>Pickup Availability</h3>
-            <p className="fw-normal mb-1" style={{ fontSize: 18, color: "rgba(245,245,245,0.7)", lineHeight: "30px" }}>
-              Oxnard Flea Market: {item.isPickupAtOxnardFleaMarket ? "Available" : "Not available"}
-            </p>
-            <p className="fw-normal" style={{ fontSize: 18, color: "rgba(245,245,245,0.7)", lineHeight: "30px" }}>
-              Collection: {item.isPickupAtCollection ? "Available" : "Not available"}
-            </p>
-          </div>
         </div>
       </div>
+
+      {isContactModalOpen && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ background: "rgba(10,10,10,0.78)", zIndex: 1050, padding: 24 }}
+          onClick={closeContactModal}
+        >
+          <div
+            className="bg-dark text-light rounded-4 p-4"
+            style={{ width: "100%", maxWidth: 520, border: "1px solid #2A2A2A", boxShadow: "0 24px 80px rgba(0,0,0,0.45)" }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="d-flex justify-content-between align-items-start gap-3 mb-4">
+              <div>
+                <h2 className="fw-bold mb-2" style={{ fontSize: 34, color: "#F5F5F5" }}>
+                  Contact Seller
+                </h2>
+                <p className="mb-0" style={{ fontSize: 16, color: "rgba(245,245,245,0.7)" }}>
+                  Share your information for {item.title} and the seller can reach out directly.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline-light"
+                onClick={closeContactModal}
+              >
+                Close
+              </button>
+            </div>
+
+            <form onSubmit={handleContactSubmit}>
+              <div className="mb-3">
+                <label className="form-label" htmlFor="contact-name" style={{ color: "#F5F5F5" }}>
+                  Name
+                </label>
+                <input
+                  id="contact-name"
+                  name="name"
+                  type="text"
+                  className="form-control"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label" htmlFor="contact-phone" style={{ color: "#F5F5F5" }}>
+                  Phone Number
+                </label>
+                <input
+                  id="contact-phone"
+                  name="phone"
+                  type="tel"
+                  className="form-control"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="(555) 555-5555"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label" htmlFor="contact-email" style={{ color: "#F5F5F5" }}>
+                  Email
+                </label>
+                <input
+                  id="contact-email"
+                  name="email"
+                  type="email"
+                  className="form-control"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label" htmlFor="contact-message" style={{ color: "#F5F5F5" }}>
+                  Message
+                </label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  className="form-control"
+                  rows="4"
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  placeholder=""
+                />
+              </div>
+
+              {formError && <div className="alert alert-danger mb-3">{formError}</div>}
+              {formSuccess && <div className="alert alert-success mb-3">{formSuccess}</div>}
+
+              <div className="d-flex justify-content-end gap-2">
+                <button
+                  type="button"
+                  className="btn btn-outline-light px-4 py-2"
+                  onClick={closeContactModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-light fw-medium px-4 py-2"
+                  style={{ color: "#0A0A0A" }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending..." : "Submit"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </section>
   );

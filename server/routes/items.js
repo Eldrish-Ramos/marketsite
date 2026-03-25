@@ -18,6 +18,7 @@ const conditionOptions = new Set([
 
 const categoryPrefixMap = {
   'Video Games': 'VG',
+  'Video Game Consoles': 'VGC',
 };
 
 function generateCategoryItemId(category) {

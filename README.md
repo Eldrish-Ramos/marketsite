@@ -1,3 +1,25 @@
+# MarketSite
+
+## Contact Form Email Setup
+
+The buyer contact form sends submissions to the backend route `POST /api/contact`, which then sends an email to `eldrishsells@gmail.com`.
+
+Add these environment variables to your root `.env` file before using the contact form:
+
+```env
+CONTACT_EMAIL_TO=eldrishsells@gmail.com
+CONTACT_EMAIL_FROM=eldrishsells@gmail.com
+CONTACT_SMTP_HOST=smtp.gmail.com
+CONTACT_SMTP_PORT=587
+CONTACT_SMTP_SECURE=false
+CONTACT_SMTP_USER=eldrishsells@gmail.com
+CONTACT_SMTP_PASS=your-gmail-app-password
+```
+
+For Gmail, use a Google app password instead of your normal account password. If two-factor authentication is not enabled on the Gmail account, enable it first, then create an app password for mail access.
+
+The route validates required fields and rate-limits repeated requests from the same IP address.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
