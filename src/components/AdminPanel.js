@@ -17,7 +17,7 @@ const defaultFormState = {
   category: categoryOptions[0],
 };
 
-const AdminPanel = () => {
+const AdminPanel = ({ adminToken, onLogout }) => {
   const [showForm, setShowForm] = useState(false);
   const [showManage, setShowManage] = useState(false);
   const [title, setTitle] = useState(defaultFormState.title);
@@ -135,11 +135,20 @@ const AdminPanel = () => {
 
       const res = await fetch(`/api/items/${itemId}`, {
         method: "PUT",
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
         body: formData,
       });
 
       if (!res.ok) {
         const data = await res.json();
+        if (res.status === 401 || res.status === 403) {
+          setError(data.error || "Admin session expired. Please log in again.");
+          onLogout();
+          setSavingItemId("");
+          return;
+        }
         setError(data.error || "Failed to update item");
         setSavingItemId("");
         return;
@@ -168,10 +177,19 @@ const AdminPanel = () => {
     try {
       const res = await fetch(`/api/items/${itemId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
       });
 
       if (!res.ok) {
         const data = await res.json();
+        if (res.status === 401 || res.status === 403) {
+          setError(data.error || "Admin session expired. Please log in again.");
+          onLogout();
+          setDeletingItemId("");
+          return;
+        }
         setError(data.error || "Failed to delete item");
         setDeletingItemId("");
         return;
@@ -206,6 +224,9 @@ const AdminPanel = () => {
     try {
       const res = await fetch("/api/items/upload", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
         body: formData,
       });
       if (res.ok) {
@@ -215,6 +236,12 @@ const AdminPanel = () => {
         setShowForm(false);
       } else {
         const data = await res.json();
+        if (res.status === 401 || res.status === 403) {
+          setError(data.error || "Admin session expired. Please log in again.");
+          onLogout();
+          setUploading(false);
+          return;
+        }
         setError(data.error || "Upload failed");
       }
     } catch (err) {
@@ -225,7 +252,12 @@ const AdminPanel = () => {
 
   return (
     <div className="container mt-5">
-      <h2>Admin Panel</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2 className="mb-0">Admin Panel</h2>
+        <button type="button" className="btn btn-outline-danger btn-sm" onClick={onLogout}>
+          Logout
+        </button>
+      </div>
       <div className="d-flex gap-2 mb-4">
         <button
           className="btn btn-success"

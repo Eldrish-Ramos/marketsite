@@ -12,22 +12,24 @@ const AdminLogin = ({ onLogin }) => {
     e.preventDefault();
     setError("");
     try {
-      console.log("Submitting PIN:", pin);
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pin }),
       });
+      const data = await res.json();
       if (res.ok) {
-        onLogin();
+        if (!data.token) {
+          setError("Login response did not include a token.");
+          return;
+        }
+        onLogin(data.token);
         navigate("/admin");
       } else {
-        const data = await res.json();
         setError(data.error || "Invalid pin");
       }
-    } catch (err) {
+    } catch {
       setError("Server error");
-      console.error("Login error:", err);
     }
   };
 
@@ -38,7 +40,7 @@ const AdminLogin = ({ onLogin }) => {
         <div className="mb-3">
           <label className="form-label">Admin PIN</label>
           <input
-            type="text"
+            type="password"
             className="form-control"
             value={pin}
             onChange={(e) => setPin(e.target.value)}

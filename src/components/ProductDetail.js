@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const ProductDetail = () => {
@@ -12,6 +12,7 @@ const ProductDetail = () => {
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notification, setNotification] = useState("");
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -35,6 +36,14 @@ const ProductDetail = () => {
 
     fetchItem();
   }, [id]);
+
+  // Auto-dismiss notification after 5 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const openContactModal = () => {
     setFormError("");
@@ -91,8 +100,9 @@ const ProductDetail = () => {
         return;
       }
 
-      setFormSuccess("Your message was sent. The seller can follow up using the information you provided.");
+      setNotification("Your message was sent. The seller can follow up using the information you provided.");
       setFormData({ name: "", phone: "", email: "", message: "" });
+      setIsContactModalOpen(false);
     } catch {
       setFormError("Failed to send your message.");
     } finally {
@@ -104,7 +114,30 @@ const ProductDetail = () => {
     return (
       <section className="py-5" style={{ paddingLeft: 160, paddingRight: 160, background: "#0A0A0A" }}>
         <div style={{ color: "#F5F5F5" }}>Loading...</div>
-      </section>
+      
+      {notification && (
+        <div
+          className="position-fixed bottom-0 start-50 translate-middle-x mb-4"
+          style={{ zIndex: 1040 }}
+        >
+          <div
+            className="alert alert-success mb-0 d-flex align-items-center gap-3"
+            style={{
+              color: "#155724",
+              background: "#d4edda",
+              border: "1px solid #c3e6cb",
+              borderRadius: "8px",
+              padding: "16px 24px",
+              minWidth: "400px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+            }}
+          >
+            <span style={{ fontSize: 18 }}></span>
+            <span>{notification}</span>
+          </div>
+        </div>
+      )}
+    </section>
     );
   }
 
@@ -112,7 +145,30 @@ const ProductDetail = () => {
     return (
       <section className="py-5" style={{ paddingLeft: 160, paddingRight: 160, background: "#0A0A0A" }}>
         <div className="alert alert-danger">{error || "Item not found"}</div>
-      </section>
+      
+      {notification && (
+        <div
+          className="position-fixed bottom-0 start-50 translate-middle-x mb-4"
+          style={{ zIndex: 1040 }}
+        >
+          <div
+            className="alert alert-success mb-0 d-flex align-items-center gap-3"
+            style={{
+              color: "#155724",
+              background: "#d4edda",
+              border: "1px solid #c3e6cb",
+              borderRadius: "8px",
+              padding: "16px 24px",
+              minWidth: "400px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+            }}
+          >
+            <span style={{ fontSize: 18 }}></span>
+            <span>{notification}</span>
+          </div>
+        </div>
+      )}
+    </section>
     );
   }
 
@@ -263,7 +319,6 @@ const ProductDetail = () => {
               </div>
 
               {formError && <div className="alert alert-danger mb-3">{formError}</div>}
-              {formSuccess && <div className="alert alert-success mb-3">{formSuccess}</div>}
 
               <div className="d-flex justify-content-end gap-2">
                 <button
@@ -287,8 +342,36 @@ const ProductDetail = () => {
         </div>
       )}
 
+    
+      {notification && (
+        <div
+          className="position-fixed bottom-0 start-50 translate-middle-x mb-4"
+          style={{ zIndex: 1040 }}
+        >
+          <div
+            className="alert alert-success mb-0 d-flex align-items-center gap-3"
+            style={{
+              color: "#155724",
+              background: "#d4edda",
+              border: "1px solid #c3e6cb",
+              borderRadius: "8px",
+              padding: "16px 24px",
+              minWidth: "400px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+            }}
+          >
+            <span style={{ fontSize: 18 }}></span>
+            <span>{notification}</span>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
 
 export default ProductDetail;
+
+
+
+
+

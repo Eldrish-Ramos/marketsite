@@ -20,6 +20,40 @@ For Gmail, use a Google app password instead of your normal account password. If
 
 The route validates required fields and rate-limits repeated requests from the same IP address.
 
+## Security Configuration
+
+Set the following environment variables in your root `.env` for hardened production behavior:
+
+```env
+# JWT for admin auth (required)
+ADMIN_JWT_SECRET=replace-with-64-char-random-secret
+ADMIN_JWT_EXPIRES_IN=8h
+ADMIN_LOGIN_MAX_ATTEMPTS=5
+ADMIN_LOGIN_LOCKOUT_MINUTES=15
+
+# CORS and reverse proxy behavior
+CORS_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+TRUST_PROXY=1
+
+# Firebase admin credential via env (JSON or base64 JSON)
+FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+# or
+# FIREBASE_SERVICE_ACCOUNT_BASE64=base64-encoded-json
+```
+
+Do not commit `.env`, `server/.env`, or any service-account JSON file.
+
+## Dependency Modernization Plan
+
+The project currently depends on Create React App (`react-scripts`), which pulls legacy transitive dependencies.
+
+Recommended phased plan:
+
+1. Migrate frontend build tooling to Vite.
+2. Upgrade React Router and testing setup after the Vite migration compiles cleanly.
+3. Run `npm audit` after migration and patch remaining high-impact advisories.
+4. Add CI checks for `npm audit --omit=dev` and dependency updates.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

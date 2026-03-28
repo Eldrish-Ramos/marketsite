@@ -10,7 +10,17 @@ import ProductDetail from "./components/ProductDetail";
 const AdminPanel = React.lazy(() => import("./components/AdminPanel")); // Placeholder for future admin panel
 
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminToken, setAdminToken] = useState(() => localStorage.getItem("adminToken") || "");
+
+  const handleLogin = (token) => {
+    localStorage.setItem("adminToken", token);
+    setAdminToken(token);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    setAdminToken("");
+  };
 
   return (
     <div style={{ background: "#0A0A0A", minHeight: "100vh" }}>
@@ -21,12 +31,16 @@ function App() {
           <Route path="/items/:id" element={<ProductDetail />} />
           <Route
             path="/admin/login"
-            element={<AdminLogin onLogin={() => setIsAdmin(true)} />}
+            element={<AdminLogin onLogin={handleLogin} />}
           />
           <Route
             path="/admin"
             element={
-              isAdmin ? <AdminPanel /> : <Navigate to="/admin/login" replace />
+              adminToken ? (
+                <AdminPanel adminToken={adminToken} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/admin/login" replace />
+              )
             }
           />
         </Routes>

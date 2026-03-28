@@ -2,12 +2,53 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const { randomUUID } = require('crypto');
+const path = require('path');
 const { db } = require('../firebase');
 const { uploadBufferToCloudinary, deleteImageFromCloudinary } = require('../cloudinary');
+const requireAdmin = require('../middleware/requireAdmin');
 
 // Multer setup for file upload
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const allowedMimeTypes = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]);
+const allowedExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+
+const upload = multer({
+  storage,
+  limits: {
+    files: 10,
+    fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (req, file, cb) => {
+    const extension = path.extname(file.originalname || '').toLowerCase();
+    if (allowedMimeTypes.has(file.mimetype) && allowedExtensions.has(extension)) {
+      return cb(null, true);
+    }
+    return cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE', 'images'));
+  },
+});
+
+function uploadImagesMiddleware(req, res, next) {
+  upload.array('images', 10)(req, res, (err) => {
+    if (!err) {
+      return next();
+    }
+
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'Each image must be 5MB or smaller.' });
+      }
+
+      return res.status(400).json({ error: 'Invalid image upload payload.' });
+    }
+
+    return res.status(400).json({ error: 'Invalid image upload payload.' });
+  });
+}
 
 const conditionOptions = new Set([
   'Used - Poor',
@@ -132,7 +173,7 @@ function normalizeItem(doc) {
 }
 
 // POST /api/items/upload - Upload item with one or more images
-router.post('/upload', upload.array('images', 10), async (req, res) => {
+router.post('/upload', requireAdmin, uploadImagesMiddleware, async (req, res) => {
   try {
     const { title, description, price, condition, category } = req.body;
     const files = req.files || [];
@@ -212,7 +253,7 @@ router.post('/upload', upload.array('images', 10), async (req, res) => {
 });
 
 // PUT /api/items/:id - Update editable item fields
-router.put('/:id', upload.array('images', 10), async (req, res) => {
+router.put('/:id', requireAdmin, uploadImagesMiddleware, async (req, res) => {
   try {
     const { title, description, price, condition } = req.body;
     const replaceImages = req.body.replaceImages === 'true' || req.body.replaceImages === true;
@@ -289,7 +330,7 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
 });
 
 // DELETE /api/items/:id - Remove item from Firestore and Cloudinary
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const itemRef = db.collection('items').doc(req.params.id);
     const itemDoc = await itemRef.get();

@@ -1,11 +1,11 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
+const { parsePhoneNumber } = require('libphonenumber-js');
 
 const router = express.Router();
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phonePattern = /^[0-9()+\-\s]{7,25}$/;
+const emailPattern = /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const contactLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -63,7 +63,14 @@ router.post('/', contactLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Please enter a valid email address.' });
   }
 
-  if (!phonePattern.test(phone)) {
+  // Validate phone number using libphonenumber-js (default to US if no country code)
+  let phoneNumber;
+  try {
+    phoneNumber = parsePhoneNumber(phone, 'US');
+    if (!phoneNumber || !phoneNumber.isValid()) {
+      return res.status(400).json({ error: 'Please enter a valid phone number.' });
+    }
+  } catch {
     return res.status(400).json({ error: 'Please enter a valid phone number.' });
   }
 
